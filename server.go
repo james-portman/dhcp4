@@ -37,6 +37,9 @@ func Serve(conn ServeConn, handler Handler) error {
 		if err != nil {
 			return err
 		}
+		if n == -1 { // Packet from wrong interface
+			continue
+		}
 		if n < 240 { // Packet too small to be DHCP
 			continue
 		}
@@ -45,6 +48,7 @@ func Serve(conn ServeConn, handler Handler) error {
 			continue
 		}
 		options := req.ParseOptions()
+
 		var reqType MessageType
 		if t := options[OptionDHCPMessageType]; len(t) != 1 {
 			continue
@@ -54,6 +58,7 @@ func Serve(conn ServeConn, handler Handler) error {
 				continue
 			}
 		}
+
 		if res := handler.ServeDHCP(req, reqType, options); res != nil {
 			// If IP not available, broadcast
 			ipStr, portStr, err := net.SplitHostPort(addr.String())

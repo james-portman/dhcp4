@@ -15,7 +15,7 @@ type serveIfConn struct {
 func (s *serveIfConn) ReadFrom(b []byte) (n int, addr net.Addr, err error) {
 	n, s.cm, addr, err = s.conn.ReadFrom(b)
 	if s.cm != nil && s.cm.IfIndex != s.ifIndex { // Filter all other interfaces
-		n = 0 // Packets < 240 are filtered in Serve().
+		n = -1 // Packets < 240 are filtered in Serve().
 	}
 	return
 }

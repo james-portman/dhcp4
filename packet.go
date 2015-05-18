@@ -168,7 +168,7 @@ func RequestPacket(mt MessageType, chAddr net.HardwareAddr, cIAddr net.IP, xId [
 // ReplyPacket creates a reply packet that a Server would send to a client.
 // It uses the req Packet param to copy across common/necessary fields to
 // associate the reply the request.
-func ReplyPacket(req Packet, mt MessageType, serverId, yIAddr net.IP, leaseDuration time.Duration, options []Option) Packet {
+func ReplyPacket(req Packet, mt MessageType, serverId, yIAddr net.IP, leaseDuration time.Duration, options []Option, pxefile string) Packet {
 	p := NewPacket(BootReply)
 	p.SetXId(req.XId())
 	p.SetFlags(req.Flags())
@@ -179,6 +179,11 @@ func ReplyPacket(req Packet, mt MessageType, serverId, yIAddr net.IP, leaseDurat
 	p.AddOption(OptionDHCPMessageType, []byte{byte(mt)})
 	p.AddOption(OptionServerIdentifier, []byte(serverId))
 	p.AddOption(OptionIPAddressLeaseTime, OptionsLeaseTime(leaseDuration))
+
+	if pxefile != "" {
+		p.AddOption(OptionBootFileName, []byte(pxefile))
+	}
+
 	for _, o := range options {
 		p.AddOption(o.Code, o.Value)
 	}
